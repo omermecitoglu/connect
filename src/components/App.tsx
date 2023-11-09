@@ -1,25 +1,33 @@
-import React, { useState } from "react";
+import React from "react";
 import Container from "react-bootstrap/Container";
+import { identifyUser } from "~/redux/features/user";
+import { useAppDispatch, useAppSelector } from "~/redux/hooks";
 import Chat from "./Chat";
-import Providers from "./Providers";
 
 const App = () => {
-  const [originUserId, setOriginUserId] = useState<string | null>(null);
+  const originUserId = useAppSelector(state => state.user.id);
+  const dispatch = useAppDispatch();
+
+  const login = () => {
+    dispatch(identifyUser({
+      id: "xxxxxxxxx",
+      avatar: "",
+      name: "",
+    }));
+  };
 
   return (
-    <Providers>
-      <Container fluid className="py-3 vh-100">
-        {originUserId ? (
-          <Chat
-            originUserId={originUserId}
-          />
-        ) : (
-          <div onClick={() => setOriginUserId("dummy_user")}>
+    <Container fluid className="py-3 vh-100">
+      {originUserId ? (
+        <Chat
+          originUserId={originUserId}
+        />
+      ) : (
+        <div onClick={login}>
             You are not logged in
-          </div>
-        )}
-      </Container>
-    </Providers>
+        </div>
+      )}
+    </Container>
   );
 };
 
