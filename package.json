@@ -13,6 +13,7 @@
     "@reduxjs/toolkit": "^1.9.7",
     "bootstrap": "^5.3.2",
     "bootstrap-chat-ui": "github:omermecitoglu/bootstrap-chat-ui",
+    "peerjs": "^1.5.1",
     "react": "^18.2.0",
     "react-bootstrap": "^2.9.1",
     "react-dom": "^18.2.0",
