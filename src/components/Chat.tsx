@@ -1,6 +1,11 @@
 import "bootstrap-chat-ui/dist/style.css";
 import BootstrapChatUI, { type IMessage } from "bootstrap-chat-ui";
-import React, { useState } from "react";
+import React, { useContext, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
+import DatabaseContext from "~/core/database/context";
+import { saveMessages } from "~/core/messages";
+import { addMessage, updateMessage } from "~/redux/features/database";
+import { useAppDispatch, useAppSelector } from "~/redux/hooks";
 
 type ChatProps = {
   originUserId: string,
@@ -9,19 +14,38 @@ type ChatProps = {
 const Chat = ({
   originUserId,
 }: ChatProps) => {
-  const [messages, setMessages] = useState<IMessage[]>([]);
+  const userId = useAppSelector(state => state.user.id);
+  const contacts = useAppSelector(state => state.database.contacts);
+  const messages = useAppSelector(state => state.database.messages);
+  const db = useContext(DatabaseContext);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const unsavedMessages = messages
+      .filter(m => m.status === "new" && m.authorId === userId)
+      .map<IMessage>(m => ({ ...m, status: "created" }));
+    if (!unsavedMessages.length) return;
+    (async () => {
+      try {
+        await saveMessages(db, unsavedMessages);
+        for (const message of unsavedMessages) {
+          dispatch(updateMessage(message));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+  }, [db, messages]);
 
   const createNewMessage = (text: string, roomId: string) => {
-    setMessages(m => {
-      return [...m, {
-        id: Date.now().toString(),
-        content: text,
-        authorId: originUserId,
-        roomId: roomId,
-        timestamp: Date.now(),
-        status: "new",
-      }];
-    });
+    dispatch(addMessage({
+      id: uuidv4(),
+      content: text,
+      authorId: originUserId,
+      roomId: roomId,
+      timestamp: Date.now(),
+      status: "new",
+    }));
   };
 
   return (
@@ -29,8 +53,8 @@ const Chat = ({
       originUserId={originUserId}
       allMessages={messages}
       addMessage={createNewMessage}
-      getContactAvatar={() => "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTGNBuKZS2dQ8gViURYxqj0ih63BJgwf4e1KAPzMc1AyYVjDkc_"}
-      getContactName={() => "Isaac Newton"}
+      getContactAvatar={id => contacts.find(c => c.id === id)?.avatar || "/chat-avatar-placeholder.svg"}
+      getContactName={id => contacts.find(c => c.id === id)?.name || "Unknown"}
     />
   );
 };
