@@ -2,7 +2,7 @@ import { upgrade } from "./migrations";
 
 export async function connectDatabase(name: string): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = window.indexedDB.open(name, 4);
+    const request = window.indexedDB.open(name, 1);
     request.onupgradeneeded = (event) => {
       const target = event.target as IDBOpenDBRequest;
       const db = target.result;
@@ -36,9 +36,10 @@ export async function runTransaction(db: IDBDatabase, tableName: string, mode: "
   });
 }
 
-export async function getAllItems<T>(db: IDBDatabase, tableName: string) {
+export async function getAllItems<T>(db: IDBDatabase, tableName: string, indexName?: string) {
   const collection: T[] = [];
-  await runTransaction(db, tableName, "readonly", table => {
+  await runTransaction(db, tableName, "readonly", store => {
+    const table = indexName ? store.index(indexName) : store;
     table.openCursor().onsuccess = (event) => {
       const target = event.target as IDBRequest<IDBCursorWithValue | null>;
       const cursor = target.result;

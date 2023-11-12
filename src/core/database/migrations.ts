@@ -1,9 +1,8 @@
 export function upgrade(db: IDBDatabase, oldVersion: Readonly<number>, newVersion: Readonly<number>) {
   const migrations: Record<number, (() => void) | undefined> = {
     1: () => {
-      db.createObjectStore("messages", { keyPath: "id" });
-    },
-    4: () => {
+      const messages = db.createObjectStore("messages", { keyPath: "id" });
+      messages.createIndex("room-and-date", ["roomId", "timestamp"]);
       db.createObjectStore("contacts", { keyPath: "id" });
     },
   };
