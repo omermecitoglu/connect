@@ -1,10 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import { type Contact, saveContacts } from "~/core/contacts";
+import DatabaseContext from "~/core/database/context";
 import { patchMessages, saveMessages } from "~/core/messages";
 import { addContact, addMessage, updateMessage } from "~/redux/features/database";
 import { removeConnection } from "~/redux/features/network";
 import { useAppDispatch, useAppSelector } from "~/redux/hooks";
-import { DatabaseContext } from "./Providers/DatabaseProvider";
 import type { IMessage } from "bootstrap-chat-ui";
 import type { DataConnection } from "peerjs";
 
@@ -39,8 +39,6 @@ const Connection = ({
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (!db) return;
-
     const onOpen = () => {
       console.log(`${connection.peer} is online 1`);
       connection.send({
