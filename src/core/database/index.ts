@@ -21,24 +21,13 @@ export async function connectDatabase(name: string): Promise<IDBDatabase> {
   });
 }
 
-export async function runTransaction(db: IDBDatabase, tableName: string, mode: "readonly" | "readwrite", operation: (table: IDBObjectStore) => void): Promise<void> {
+export function getAllItems<T>(db: IDBDatabase, tableName: string, indexName?: string): Promise<T[]> {
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction([tableName], mode);
-    transaction.onerror = (event) => {
-      const target = event.target as IDBTransaction;
-      reject(new Error(target.error?.message ?? "Transaction has failed!"));
-    };
-    transaction.oncomplete = () => {
-      resolve();
-    };
-    const table = transaction.objectStore(tableName);
-    operation(table);
-  });
-}
-
-export async function getAllItems<T>(db: IDBDatabase, tableName: string, indexName?: string) {
-  const collection: T[] = [];
-  await runTransaction(db, tableName, "readonly", store => {
+    const collection: T[] = [];
+    const transaction = db.transaction([tableName], "readonly");
+    transaction.onerror = (event) => reject((event.target as IDBTransaction).error);
+    transaction.oncomplete = () => resolve(collection);
+    const store = transaction.objectStore(tableName);
     const table = indexName ? store.index(indexName) : store;
     table.openCursor().onsuccess = (event) => {
       const target = event.target as IDBRequest<IDBCursorWithValue | null>;
@@ -49,21 +38,30 @@ export async function getAllItems<T>(db: IDBDatabase, tableName: string, indexNa
       }
     };
   });
-  return collection;
 }
 
-export function saveItems<T>(db: IDBDatabase, tableName: string, items: T[]) {
-  return runTransaction(db, tableName, "readwrite", table => {
+export function saveItems<T>(db: IDBDatabase, tableName: string, items: T[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([tableName], "readwrite");
+    transaction.onerror = (event) => reject((event.target as IDBTransaction).error);
+    transaction.oncomplete = () => resolve();
+    const table = transaction.objectStore(tableName);
     for (const item of items) {
-      table.add(item);
+      const request = table.add(item);
+      request.onerror = (event) => reject((event.target as IDBRequest).error);
     }
   });
 }
 
-export function patchItems<T>(db: IDBDatabase, tableName: string, items: T[]) {
-  return runTransaction(db, tableName, "readwrite", table => {
+export function patchItems<T>(db: IDBDatabase, tableName: string, items: T[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([tableName], "readwrite");
+    transaction.onerror = (event) => reject((event.target as IDBTransaction).error);
+    transaction.oncomplete = () => resolve();
+    const table = transaction.objectStore(tableName);
     for (const item of items) {
-      table.put(item);
+      const request = table.put(item);
+      request.onerror = (event) => reject((event.target as IDBRequest).error);
     }
   });
 }
