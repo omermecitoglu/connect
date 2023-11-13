@@ -37,14 +37,14 @@ const Chat = ({
     })();
   }, [db, messages]);
 
-  const createNewMessage = (text: string, roomId: string) => {
+  const createNewMessage = (roomId: string, content: string, isDummy: boolean) => {
     dispatch(addMessage({
       id: uuidv4(),
-      content: text,
+      content,
       authorId: originUserId,
       roomId: roomId,
       timestamp: Date.now(),
-      status: "new",
+      status: isDummy ? "dummy" : "new",
     }));
   };
 
