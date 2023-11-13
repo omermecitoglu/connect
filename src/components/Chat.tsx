@@ -4,6 +4,7 @@ import React, { useContext, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import DatabaseContext from "~/core/database/context";
 import { saveMessages } from "~/core/messages";
+import { activateRoom } from "~/redux/features/app";
 import { addMessage, updateMessage } from "~/redux/features/database";
 import { useAppDispatch, useAppSelector } from "~/redux/hooks";
 
@@ -14,6 +15,7 @@ type ChatProps = {
 const Chat = ({
   originUserId,
 }: ChatProps) => {
+  const activeRoom = useAppSelector(state => state.app.activeRoom);
   const userId = useAppSelector(state => state.user.id);
   const contacts = useAppSelector(state => state.database.contacts);
   const messages = useAppSelector(state => state.database.messages);
@@ -52,7 +54,9 @@ const Chat = ({
     <BootstrapChatUI
       originUserId={originUserId}
       allMessages={messages}
-      addMessage={createNewMessage}
+      onMessageCreate={createNewMessage}
+      activeRoom={activeRoom}
+      onRoomChange={roomId => dispatch(activateRoom(roomId))}
       getContactAvatar={id => contacts.find(c => c.id === id)?.avatar || "/chat-avatar-placeholder.svg"}
       getContactName={id => contacts.find(c => c.id === id)?.name || "Unknown"}
     />

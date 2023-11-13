@@ -2,6 +2,7 @@ import { type Reducer, configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/dist/query";
 import { persistReducer, persistStore } from "redux-persist";
 import thunk from "redux-thunk";
+import appReducer from "./features/app";
 import databaseReducer from "./features/database";
 import networkReducer from "./features/network";
 import userReducer from "./features/user";
@@ -13,6 +14,7 @@ function persisted<T>(key: string, reducer: Reducer<T>) {
 
 export const store = configureStore({
   reducer: {
+    app: persisted("app", appReducer),
     user: persisted("user", userReducer),
     database: databaseReducer,
     network: networkReducer,
