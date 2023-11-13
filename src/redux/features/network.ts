@@ -35,9 +35,12 @@ const network = createSlice({
     removeConnection(state, action: PayloadAction<string>) {
       state.connections = state.connections.filter(c => c.peer !== action.payload);
     },
+    resetConnections(state) {
+      state.connections = [];
+    },
   },
 });
 
-export const { initPeer, killPeer, addConnection, removeConnection } = network.actions;
+export const { initPeer, killPeer, addConnection, removeConnection, resetConnections } = network.actions;
 
 export default network.reducer;

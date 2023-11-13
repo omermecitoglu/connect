@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-import { type Contact, saveContacts } from "~/core/contacts";
+import { type Contact, patchContacts, saveContacts } from "~/core/contacts";
 import DatabaseContext from "~/core/database/context";
 import { patchMessages, saveMessages } from "~/core/messages";
 import { addOnlineContact, removeOnlineContact } from "~/redux/features/app";
-import { addContact, addMessage, updateMessage } from "~/redux/features/database";
+import { addContact, addMessages, updateContact, updateMessages } from "~/redux/features/database";
 import { removeConnection } from "~/redux/features/network";
 import { useAppDispatch, useAppSelector } from "~/redux/hooks";
 import type { IMessage } from "bootstrap-chat-ui";
@@ -64,13 +64,16 @@ const Connection = ({
       const data = incomingData as PeerMessage;
       switch (data.type) {
         case "introduction": {
-          const isSaved = contacts.find(c => c.id === connection.peer);
-          if (!isSaved) {
-            const contact: Contact = {
-              id: connection.peer,
-              name: data.name,
-              avatar: data.avatar,
-            };
+          const contact: Contact = {
+            id: connection.peer,
+            name: data.name,
+            avatar: data.avatar,
+          };
+          const found = contacts.find(c => c.id === connection.peer);
+          if (found) {
+            await patchContacts(db, [contact]);
+            dispatch(updateContact(contact));
+          } else {
             await saveContacts(db, [contact]);
             dispatch(addContact(contact));
           }
@@ -84,9 +87,7 @@ const Connection = ({
             status: "delivered",
           }));
           await saveMessages(db, msgs);
-          for (const msg of msgs) {
-            dispatch(addMessage(msg));
-          }
+          dispatch(addMessages(msgs));
           connection.send({
             type: "messages-delivered",
             messageIds: msgs.map(m => m.id),
@@ -101,9 +102,7 @@ const Connection = ({
               status: "delivered",
             }));
           await patchMessages(db, msgs);
-          for (const msg of msgs) {
-            dispatch(updateMessage(msg));
-          }
+          dispatch(updateMessages(msgs));
           break;
         }
         case "messages-seen": {
@@ -111,9 +110,7 @@ const Connection = ({
             .filter(m => m.status === "delivered" && m.roomId === connection.peer)
             .map<IMessage>(m => ({ ...m, status: "read" }));
           await patchMessages(db, msgs);
-          for (const msg of msgs) {
-            dispatch(updateMessage(msg));
-          }
+          dispatch(updateMessages(msgs));
           break;
         }
       }
@@ -130,7 +127,7 @@ const Connection = ({
       connection.off("close", onClose);
       connection.off("error", onError);
     };
-  }, [db, connection, messages]);
+  }, [db, connection, contacts, messages]);
 
   useEffect(() => {
     if (!established) return;

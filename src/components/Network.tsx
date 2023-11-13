@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { addConnection, removeConnection } from "~/redux/features/network";
+import React, { useEffect, useState } from "react";
+import { addConnection, removeConnection, resetConnections } from "~/redux/features/network";
 import { useAppDispatch, useAppSelector } from "~/redux/hooks";
 import Connection from "./Connection";
 import type { DataConnection, Peer, PeerError } from "peerjs";
@@ -11,19 +11,17 @@ type NetworkProps = {
 const Network = ({
   peer,
 }: NetworkProps) => {
+  const [connected, setConnected] = useState(false);
   const contacts = useAppSelector(state => state.database.contacts);
   const connections = useAppSelector(state => state.network.connections);
   const dispatch = useAppDispatch();
 
-  // register peer connections
+  // handle peer connections
 
   useEffect(() => {
     const onConnect = (id: string) => {
       console.log("I am " + id);
-      for (const contact of contacts) {
-        const connection = peer.connect(contact.id);
-        dispatch(addConnection(connection));
-      }
+      setConnected(true);
     };
 
     const handleIncomingConnections = (connection: DataConnection) => {
@@ -31,11 +29,13 @@ const Network = ({
     };
 
     const onDisconnect = (id: string) => {
-      console.log("closed! " + id);
+      console.log("i'm disconnected from the peer server! id:" + id);
     };
 
     const onClose = () => {
       console.log("closed!");
+      setConnected(false);
+      dispatch(resetConnections());
     };
 
     const onError = (error: PeerError<string>) => {
@@ -67,6 +67,19 @@ const Network = ({
       peer.off("error", onError);
     };
   }, [peer]);
+
+  // update contacts
+
+  useEffect(() => {
+    if (connected) {
+      const unconnectedContacts = contacts.filter(contact => !connections.find(conn => conn.peer === contact.id));
+      for (const contact of unconnectedContacts) {
+        console.log("connecting to", contact.id);
+        const connection = peer.connect(contact.id);
+        dispatch(addConnection(connection));
+      }
+    }
+  }, [connected, contacts]);
 
   return connections.map(connection =>
     <Connection key={connection.peer} connection={connection} />
