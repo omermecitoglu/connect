@@ -16,6 +16,7 @@ const Chat = ({
   originUserId,
 }: ChatProps) => {
   const activeRoom = useAppSelector(state => state.app.activeRoom);
+  const onlineContactIds = useAppSelector(state => state.app.onlineContactIds);
   const userId = useAppSelector(state => state.user.id);
   const contacts = useAppSelector(state => state.database.contacts);
   const messages = useAppSelector(state => state.database.messages);
@@ -59,6 +60,7 @@ const Chat = ({
       onRoomChange={roomId => dispatch(activateRoom(roomId))}
       getContactAvatar={id => contacts.find(c => c.id === id)?.avatar || "/chat-avatar-placeholder.svg"}
       getContactName={id => contacts.find(c => c.id === id)?.name || "Unknown"}
+      isContactOnline={id => onlineContactIds.includes(id)}
     />
   );
 };

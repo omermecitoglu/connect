@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { type Contact, saveContacts } from "~/core/contacts";
 import DatabaseContext from "~/core/database/context";
 import { patchMessages, saveMessages } from "~/core/messages";
+import { addOnlineContact, removeOnlineContact } from "~/redux/features/app";
 import { addContact, addMessage, updateMessage } from "~/redux/features/database";
 import { removeConnection } from "~/redux/features/network";
 import { useAppDispatch, useAppSelector } from "~/redux/hooks";
@@ -40,7 +41,7 @@ const Connection = ({
 
   useEffect(() => {
     const onOpen = () => {
-      console.log(`${connection.peer} is online 1`);
+      dispatch(addOnlineContact(connection.peer));
       connection.send({
         type: "introduction",
         name: userName,
@@ -50,7 +51,7 @@ const Connection = ({
     };
 
     const onClose = () => {
-      console.log(`${connection.peer} is offline`);
+      dispatch(removeOnlineContact(connection.peer));
       dispatch(removeConnection(connection.peer));
       setEstablished(false);
     };
