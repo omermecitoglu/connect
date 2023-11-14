@@ -4,6 +4,7 @@ import { getAllContacts } from "~/core/contacts";
 import { connectDatabase } from "~/core/database";
 import DatabaseContext from "~/core/database/context";
 import { getAllMessages } from "~/core/messages";
+import useNavigatorOnLine from "~/hooks/useNavigatorOnLine";
 import { loadContacts, loadMessages } from "~/redux/features/database";
 import { initPeer } from "~/redux/features/network";
 import { useAppDispatch, useAppSelector } from "~/redux/hooks";
@@ -13,6 +14,7 @@ import Login from "./Login";
 import Network from "./Network";
 
 const App = () => {
+  const isOnline = useNavigatorOnLine();
   const [database, setDatabase] = useState<IDBDatabase | null>(null);
   const userId = useAppSelector(state => state.user.id);
   const contactsLoaded = useAppSelector(state => state.database.contactsLoaded);
@@ -45,19 +47,19 @@ const App = () => {
   // connect to network
 
   useEffect(() => {
-    if (peer || !userId) return;
+    if (peer || !isOnline || !userId) return;
     dispatch(initPeer(userId));
     return () => {
       // dispatch(killPeer());
     };
-  }, [peer, userId]);
+  }, [peer, isOnline, userId]);
 
   return (
     <Container fluid={!!userId} className="py-3 vh-100">
       {userId ? (
         (database && contactsLoaded && messagesLoaded) ? (
           <DatabaseContext.Provider value={database}>
-            {peer && <Network peer={peer} />}
+            {isOnline && peer && <Network peer={peer} />}
             <Chat
               originUserId={userId}
             />
