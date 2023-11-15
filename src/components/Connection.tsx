@@ -129,9 +129,16 @@ const Connection = ({
     };
   }, [db, connection, contacts, messages]);
 
+  // push undelivered messages
+
   useEffect(() => {
     if (!established) return;
-    const undeliveredMessages = messages.filter(m => m.status === "created" && m.authorId === userId);
+    const undeliveredMessages = messages.filter(message => {
+      if (message.status !== "created") return false;
+      if (message.roomId !== connection.peer) return false;
+      if (message.authorId !== userId) return false;
+      return true;
+    });
     if (undeliveredMessages.length) {
       connection.send({ type: "push-message", messages: undeliveredMessages } as PeerMessage);
     }
