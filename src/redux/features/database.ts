@@ -35,7 +35,7 @@ const database = createSlice({
       state.contacts = state.contacts.filter(contact => contact.id !== action.payload);
     },
     loadMessages(state, action: PayloadAction<IMessage[]>) {
-      state.messages = action.payload;
+      state.messages = [...action.payload, ...state.messages];
       state.messagesLoaded = true;
     },
     addMessage(state, action: PayloadAction<IMessage>) {

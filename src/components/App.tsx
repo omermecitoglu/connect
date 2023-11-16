@@ -3,7 +3,7 @@ import Container from "react-bootstrap/Container";
 import { getAllContacts } from "~/core/contacts";
 import { connectDatabase } from "~/core/database";
 import DatabaseContext from "~/core/database/context";
-import { getAllMessages } from "~/core/messages";
+import { getLatestMessages } from "~/core/messages";
 import useNavigatorOnLine from "~/hooks/useNavigatorOnLine";
 import { loadContacts, loadMessages } from "~/redux/features/database";
 import { initPeer } from "~/redux/features/network";
@@ -40,7 +40,7 @@ const App = () => {
 
   useEffect(() => {
     if (database && !messagesLoaded) {
-      getAllMessages(database).then(messages => dispatch(loadMessages(messages))).catch(console.error);
+      getLatestMessages(database, 10, null).then(messages => dispatch(loadMessages(messages))).catch(console.error);
     }
   }, [database, messagesLoaded]);
 

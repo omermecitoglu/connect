@@ -1,12 +1,12 @@
 import "bootstrap-chat-ui/dist/style.css";
 import BootstrapChatUI, { type IMessage } from "bootstrap-chat-ui";
-import React, { useCallback, useContext, useEffect, useRef } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { type Contact, saveContacts } from "~/core/contacts";
 import DatabaseContext from "~/core/database/context";
-import { saveMessages } from "~/core/messages";
+import { getLatestMessages, saveMessages } from "~/core/messages";
 import { activateRoom } from "~/redux/features/app";
-import { addContact, addMessage, updateMessages } from "~/redux/features/database";
+import { addContact, addMessage, loadMessages, updateMessages } from "~/redux/features/database";
 import { useAppDispatch, useAppSelector } from "~/redux/hooks";
 
 type ChatProps = {
@@ -22,6 +22,7 @@ const Chat = ({
   const contacts = useAppSelector(state => state.database.contacts);
   const messages = useAppSelector(state => state.database.messages);
   const savingMessagesLock = useRef(false);
+  const [fullyLoadedRoomIds, setFullyLoadedRoomIds] = useState<string[]>([]);
   const db = useContext(DatabaseContext);
   const dispatch = useAppDispatch();
 
@@ -64,6 +65,20 @@ const Chat = ({
     return onlineContactIds.includes(contactId);
   }, [onlineContactIds]);
 
+  const canLoadMessages = useCallback((roomId: string) => {
+    return !fullyLoadedRoomIds.includes(roomId);
+  }, [fullyLoadedRoomIds]);
+
+  const loadMoreMessages = useCallback(async (roomId: string) => {
+    const roomMessages = messages.filter(m => m.roomId === roomId);
+    const oldestMessage = roomMessages.length ? roomMessages[0] : undefined;
+    const oldestMessageId = oldestMessage?.timestamp;
+    const latestMessages = await getLatestMessages(db, 10, roomId, oldestMessageId);
+    if (latestMessages.length < 1) {
+      setFullyLoadedRoomIds(roomIds => [...roomIds, roomId]);
+    }
+    dispatch(loadMessages(latestMessages));
+  }, [messages]);
 
   const createNewMessage = async (roomId: string, content: string, isDummy: boolean) => {
     dispatch(addMessage({
@@ -100,6 +115,8 @@ const Chat = ({
       onMessageCreate={createNewMessage}
       activeRoom={activeRoom}
       onRoomChange={roomId => dispatch(activateRoom(roomId))}
+      canLoadMessages={canLoadMessages}
+      loadMessages={loadMoreMessages}
       getContactAvatar={getContactAvatar}
       getContactName={getContactName}
       isContactOnline={isContactOnline}
