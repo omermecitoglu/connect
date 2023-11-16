@@ -6,7 +6,8 @@ import { type Contact, saveContacts } from "~/core/contacts";
 import DatabaseContext from "~/core/database/context";
 import { getLatestMessages, saveMessages } from "~/core/messages";
 import { activateRoom } from "~/redux/features/app";
-import { addContact, addMessage, loadMessages, updateMessages } from "~/redux/features/database";
+import { addContact } from "~/redux/features/contacts";
+import { addMessage, loadMessages, updateMessages } from "~/redux/features/messages";
 import { useAppDispatch, useAppSelector } from "~/redux/hooks";
 
 type ChatProps = {
@@ -19,8 +20,8 @@ const Chat = ({
   const activeRoom = useAppSelector(state => state.app.activeRoom);
   const onlineContactIds = useAppSelector(state => state.app.onlineContactIds);
   const userId = useAppSelector(state => state.user.id);
-  const contacts = useAppSelector(state => state.database.contacts);
-  const messages = useAppSelector(state => state.database.messages);
+  const contacts = useAppSelector(state => state.contacts.collection);
+  const messages = useAppSelector(state => state.messages.collection);
   const savingMessagesLock = useRef(false);
   const [fullyLoadedRoomIds, setFullyLoadedRoomIds] = useState<string[]>([]);
   const db = useContext(DatabaseContext);

@@ -16,7 +16,9 @@ const network = createSlice({
   initialState,
   reducers: {
     initPeer(state, action: PayloadAction<string>) {
-      state.peer = new Peer(action.payload);
+      if (!state.peer) {
+        state.peer = new Peer(action.payload);
+      }
     },
     killPeer(state) {
       if (state.peer) {

@@ -3,7 +3,8 @@ import { type Contact, patchContacts, saveContacts } from "~/core/contacts";
 import DatabaseContext from "~/core/database/context";
 import { patchMessages, saveMessages } from "~/core/messages";
 import { addOnlineContact, removeOnlineContact } from "~/redux/features/app";
-import { addContact, addMessages, updateContact, updateMessages } from "~/redux/features/database";
+import { addContact, updateContact } from "~/redux/features/contacts";
+import { addMessages, updateMessages } from "~/redux/features/messages";
 import { removeConnection } from "~/redux/features/network";
 import { useAppDispatch, useAppSelector } from "~/redux/hooks";
 import type { IMessage } from "bootstrap-chat-ui";
@@ -34,8 +35,8 @@ const Connection = ({
   const userId = useAppSelector(state => state.user.id);
   const userName = useAppSelector(state => state.user.name);
   const avatar = useAppSelector(state => state.user.avatar);
-  const contacts = useAppSelector(state => state.database.contacts);
-  const messages = useAppSelector(state => state.database.messages);
+  const contacts = useAppSelector(state => state.contacts.collection);
+  const messages = useAppSelector(state => state.messages.collection);
   const db = useContext(DatabaseContext);
   const dispatch = useAppDispatch();
 
@@ -108,7 +109,7 @@ const Connection = ({
         case "messages-seen": {
           const msgs = messages
             .filter(m => m.status === "delivered" && m.roomId === connection.peer)
-            .map<IMessage>(m => ({ ...m, status: "read" }));
+            .map<IMessage>(m => ({ ...m, status: "seen" }));
           await patchMessages(db, msgs);
           dispatch(updateMessages(msgs));
           break;

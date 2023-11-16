@@ -3,7 +3,8 @@ import { setupListeners } from "@reduxjs/toolkit/dist/query";
 import { persistReducer, persistStore } from "redux-persist";
 import thunk from "redux-thunk";
 import appReducer from "./features/app";
-import databaseReducer from "./features/database";
+import contactsReducer from "./features/contacts";
+import messagesReducer from "./features/messages";
 import networkReducer from "./features/network";
 import userReducer from "./features/user";
 import storage from "./storage";
@@ -16,7 +17,8 @@ export const store = configureStore({
   reducer: {
     app: appReducer,
     user: persisted("user", userReducer),
-    database: databaseReducer,
+    contacts: contactsReducer,
+    messages: messagesReducer,
     network: networkReducer,
   },
   devTools: process.env.NODE_ENV !== "production",

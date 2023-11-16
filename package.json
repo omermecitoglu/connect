@@ -5,7 +5,7 @@
   "description": "a Chat app that is built on WebRTC",
   "main": "index.js",
   "scripts": {
-    "prebuild": "ts-unused-exports tsconfig.json",
+    "prebuild": "ts-unused-exports tsconfig.json --excludePathsFromReport='src'",
     "dev": "webpack serve --mode=development",
     "build": "rimraf build && webpack --progress --mode=production"
   },

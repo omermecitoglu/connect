@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
+import Connection from "~/components/Connection";
 import { addConnection, removeConnection, resetConnections } from "~/redux/features/network";
 import { useAppDispatch, useAppSelector } from "~/redux/hooks";
-import Connection from "./Connection";
 import type { DataConnection, Peer, PeerError } from "peerjs";
 
 type NetworkProps = {
@@ -12,7 +12,7 @@ const Network = ({
   peer,
 }: NetworkProps) => {
   const [connected, setConnected] = useState(false);
-  const contacts = useAppSelector(state => state.database.contacts);
+  const contacts = useAppSelector(state => state.contacts.collection);
   const connections = useAppSelector(state => state.network.connections);
   const dispatch = useAppDispatch();
 
