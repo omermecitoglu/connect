@@ -22,6 +22,8 @@ type PeerMessage = {
   messageIds: string[],
 } | {
   type: "messages-seen",
+} | {
+  type: "handshake",
 };
 
 type ConnectionProps = {
@@ -32,6 +34,7 @@ const Connection = ({
   connection,
 }: ConnectionProps) => {
   const [established, setEstablished] = useState(false);
+  const activeRoom = useAppSelector(state => state.app.activeRoom);
   const userId = useAppSelector(state => state.user.id);
   const userName = useAppSelector(state => state.user.name);
   const avatar = useAppSelector(state => state.user.avatar);
@@ -104,6 +107,7 @@ const Connection = ({
             }));
           await patchMessages(db, msgs);
           dispatch(updateMessages(msgs));
+          connection.send({ type: "handshake" } as PeerMessage);
           break;
         }
         case "messages-seen": {
@@ -112,6 +116,12 @@ const Connection = ({
             .map<IMessage>(m => ({ ...m, status: "seen" }));
           await patchMessages(db, msgs);
           dispatch(updateMessages(msgs));
+          break;
+        }
+        case "handshake": {
+          if (activeRoom === connection.peer) {
+            connection.send({ type: "messages-seen" } as PeerMessage);
+          }
           break;
         }
       }
@@ -128,7 +138,7 @@ const Connection = ({
       connection.off("close", onClose);
       connection.off("error", onError);
     };
-  }, [db, connection, contacts, messages]);
+  }, [db, connection, activeRoom, contacts, messages]);
 
   // push undelivered messages
 
@@ -144,6 +154,13 @@ const Connection = ({
       connection.send({ type: "push-message", messages: undeliveredMessages } as PeerMessage);
     }
   }, [established, messages]);
+
+  // send messages seen event
+
+  useEffect(() => {
+    if (activeRoom !== connection.peer) return;
+    connection.send({ type: "messages-seen" } as PeerMessage);
+  }, [activeRoom]);
 
   return null;
 };
