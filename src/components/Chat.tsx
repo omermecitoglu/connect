@@ -52,7 +52,7 @@ const Chat = ({
 
   const getContactAvatar = useCallback((contactId: string) => {
     const found = contacts.find(c => c.id === contactId);
-    if (!found) return "/chat-avatar-placeholder.svg";
+    if (!found) return "./chat-avatar-placeholder.svg";
     return found.avatar;
   }, [contacts]);
 

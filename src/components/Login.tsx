@@ -30,7 +30,7 @@ const Login = () => {
       >
         <div className="" style={{ width: "8rem", height: "8rem" }}>
           <img
-            src={avatar || "/login-avatar-placeholder.svg"}
+            src={avatar || "./login-avatar-placeholder.svg"}
             alt="login-avatar"
             className="rounded-circle w-100 h-100 object-fit-cover"
           />
