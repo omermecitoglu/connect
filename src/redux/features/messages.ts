@@ -1,5 +1,5 @@
 import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
-import type { IMessage } from "bootstrap-chat-ui";
+import type { IMessage } from "@omer-x/bootstrap-chat-ui";
 
 interface MessagesState {
   collection: IMessage[],

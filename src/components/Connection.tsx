@@ -7,7 +7,7 @@ import { addContact, updateContact } from "~/redux/features/contacts";
 import { addMessages, updateMessages } from "~/redux/features/messages";
 import { removeConnection } from "~/redux/features/network";
 import { useAppDispatch, useAppSelector } from "~/redux/hooks";
-import type { IMessage } from "bootstrap-chat-ui";
+import type { IMessage } from "@omer-x/bootstrap-chat-ui";
 import type { DataConnection } from "peerjs";
 
 type PeerMessage = {

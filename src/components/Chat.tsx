@@ -1,5 +1,5 @@
-import "bootstrap-chat-ui/dist/style.css";
-import BootstrapChatUI, { type IMessage } from "bootstrap-chat-ui";
+import "@omer-x/bootstrap-chat-ui/dist/style.css";
+import BootstrapChatUI, { type IMessage } from "@omer-x/bootstrap-chat-ui";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { type Contact, saveContacts } from "~/core/contacts";

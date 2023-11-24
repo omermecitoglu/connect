@@ -1,5 +1,5 @@
 import { getAllItems, getItemsWithReducer, patchItems, saveItems } from "./database";
-import type { IMessage } from "bootstrap-chat-ui";
+import type { IMessage } from "@omer-x/bootstrap-chat-ui";
 
 export function getAllMessages(db: IDBDatabase): Promise<IMessage[]> {
   return getAllItems(db, "messages", "room-and-date");
