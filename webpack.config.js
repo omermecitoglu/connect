@@ -10,7 +10,7 @@ const bundlePlugins = (mode) => {
   const plugins = [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      title: "React App",
+      template: "src/index.html",
     }),
     new MiniCssExtractPlugin({
       filename: "style.css",
