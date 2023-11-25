@@ -1,3 +1,4 @@
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
@@ -7,6 +8,7 @@ const path = require("path");
 
 const bundlePlugins = (mode) => {
   const plugins = [
+    new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       title: "React App",
     }),
